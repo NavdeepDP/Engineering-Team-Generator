@@ -11,8 +11,195 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 const render = require("./lib/htmlRenderer");
 
 
-// Write code to use inquirer to gather information about the development team members,
+
+/***
+ * Globals
+ */
+
+
+const employees = [];
+
+const questionsManager = [
+    {
+        type: "input",
+        message: "What is your manager's name?",
+        name: "name"
+    },
+    {
+        type: "input",
+        message: "What is your manager's id?",
+        name: "id"
+    },
+    {
+        type: "input",
+        message: "What is your manager's email?",
+        name: "email"
+    },
+    {
+        type: "input",
+        message: "What is your manager's office number?",
+        name: "officeNumber"
+    },
+
+];
+
+
+const questionsEngineers = [
+    {
+        type: "input",
+        message: "What is your engineer's name?",
+        name: "name"
+    },
+    {
+        type: "input",
+        message: "What is your engineer's id?",
+        name: "id"
+    },
+    {
+        type: "input",
+        message: "What is your engineer's email?",
+        name: "email"
+    },
+    {
+        type: "input",
+        message: "What is your engineer's GitHub Username?",
+        name: "gitHub"
+    },
+
+];
+
+const questionsIntern = [
+    {
+        type: "input",
+        message: "What is your intern's name?",
+        name: "name"
+    },
+    {
+        type: "input",
+        message: "What is your intern's id?",
+        name: "id"
+    },
+    {
+        type: "input",
+        message: "What is your intern's email?",
+        name: "email"
+    },
+    {
+        type: "input",
+        message: "What is your intern's school?",
+        name: "school"
+    },
+
+];
+
+
+const nextEmployeeQuestion = [
+    {
+        type: "list",
+        message: "Which type of team member would you like to add?",
+        choices: ["Engineer", "Intern", "I don't want to add any more team members"],
+        name: "teamMemberType"
+    }
+];
+
+
+/***
+ * 
+  * FUNCTION DEFINITION
+  * 
+  */
+
+// code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
+
+async function getUserInput(question) {
+    try {
+        const answer = await inquirer.prompt(question);
+        return answer;
+    }
+    catch (err) {
+        throw err;
+    }
+
+}
+
+async function getInput() {
+    try {
+        console.log("Please build your team");
+
+        let response = await getUserInput(questionsManager);
+        const manager = new Manager(response.name, response.id, response.email, response.officeNumber);
+        employees.push(manager);
+
+        let teamMember = await getUserInput(nextEmployeeQuestion);
+        console.log(teamMember);
+
+        while (teamMember.teamMemberType === "Engineer" || teamMember.teamMemberType === "Intern") {
+
+            if (teamMember.teamMemberType === "Engineer") {
+                response = await getUserInput(questionsEngineers);
+                let engineer = new Engineer(response.name, response.id, response.email, response.gitHub);
+                employees.push(engineer);
+            }
+            else if (teamMember.teamMemberType === "Intern") {
+
+                response = await getUserInput(questionsIntern);
+                let intern = new Intern(response.name, response.id, response.email, response.school);
+                employees.push(intern);
+
+            }
+
+
+            teamMember = await getUserInput(nextEmployeeQuestion);
+        }
+
+        // console.log("Employees length:" + employees.length);
+        // for (let i = 0; i < employees.length; i++)
+        //     console.log(employees[i]);          
+        const  html = render(employees);  
+
+        const outputPath = path.resolve(__dirname,"output/");
+        console.log("path: " + outputPath);
+        if(!fs.existsSync(outputPath))
+        {
+           
+            fs.mkdirSync(outputPath, err =>{
+                if(err)
+                throw err;
+            });
+        }
+        else
+        {
+            console.log("directory does exit");
+        }
+
+
+        fs.writeFile(path.resolve(__dirname,"output/team.html"), html, function(err){
+             if(err)
+               throw err;
+        });
+
+
+
+
+    }
+    catch (err) {
+        console.log(err);
+    }
+
+}
+
+
+/**
+ * FUNCTION CALLS
+ * 
+ */
+
+getInput();
+
+
+
+
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
