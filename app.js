@@ -153,11 +153,10 @@ async function getInput() {
             teamMember = await getUserInput(nextEmployeeQuestion);
         }
 
-        // console.log("Employees length:" + employees.length);
-        // for (let i = 0; i < employees.length; i++)
-        //     console.log(employees[i]);          
+       // get the html to display all the employees       
         const  html = render(employees);  
 
+        // create the output folder if it does not exist
         const outputPath = path.resolve(__dirname,"output/");
         console.log("path: " + outputPath);
         if(!fs.existsSync(outputPath))
@@ -173,7 +172,7 @@ async function getInput() {
             console.log("directory does exit");
         }
 
-
+       
         fs.writeFile(path.resolve(__dirname,"output/team.html"), html, function(err){
              if(err)
                throw err;
